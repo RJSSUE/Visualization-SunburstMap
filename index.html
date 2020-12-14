@@ -1,0 +1,51 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>A D3 map using topojson</title>
+    <script src="/js/jquery.min.js"></script>
+    <link rel="stylesheet" href="/css/earth.css">
+    <link rel="stylesheet" href="/css/d3tip.css">
+    <link rel="stylesheet" href="css/w3.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="/js/d3.min.js"></script>
+    <script src="/js/topojson.js"></script>
+    <script src="/js/d3-tip.js"></script>
+    <!--script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.0/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-queue/3.0.7/d3-queue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.0/topojson.min.js"></script>
+    
+    <link href="http://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css"-->
+<style>
+    body {
+        padding: 0;
+        margin: 0;
+        background: whitesmoke;
+    }
+    h1 {
+        position: absolute;
+        left: 20px;
+        top: 10px;
+        font-family: "Proxima Nova", Montserrat, sans-serif;
+        font-size: 2em;
+        font-weight: 100;
+        color: #005DAA; /* offical UK Kentucky blue */
+    }
+    .country {
+      stroke: #fff;
+      fill:#005DAA;
+    } 
+</style>
+</head>
+<body>
+    <div id = 'container'>
+        <svg width="700" height="407" id="mainsvg" class="svgs">
+        </svg>
+        <svg width = "1300" height = "250" id = "linegraph" class = "svgs" ></svg>
+    </div>
+
+    <h1>World Countries</h1>
+    <script src="./main.js"></script>
+    <div id='tooltip'></div>
+
+</body>
+</html>
