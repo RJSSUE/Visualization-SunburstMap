@@ -13,8 +13,13 @@ const gg = svg.append('g').attr('id', 'dots')
 const ggg = d3.select('#container').select('#linegraph')
     .attr('x',100)
     .attr('y',700);
+const sun = d3.select('#container').select('#sunburst')
+    .attr('x',800)
+    .attr('y',50)
+    .attr('viewbox',[0,0,600,600]);
 let padding = {'left': 0.2*width, 'bottom': 0.25*height, 'top': 0.13*height, 'right': 0.15*width};
 let linchar = './data/resultnew.json';
+let root;
 // convert dataPath to svgPath;
 // go to https://github.com/d3/d3-geo for more different projections;
 //const projection = d3.geoMercator();
@@ -438,7 +443,7 @@ d3.json(linchar).then(
           //  console.log(va);
             ii+=1;
         }
-        console.log(tot);
+        //console.log(tot);
         ggg.selectAll("line")
             .data(tot)
             .enter().append("line")
@@ -453,3 +458,61 @@ d3.json(linchar).then(
 
     }
 );
+const arc = d3.arc()
+    .startAngle(d => d.x0)
+    .endAngle(d => d.x1)
+    // pad distances equal to padAngle * padRadius;
+    // pad distances equal to padAngle * padRadius;
+    // It's split into two parameters
+    // so that the pie generator doesn't need to concern itself with radius
+    .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+    //.padRadius(radius / 2)
+    .innerRadius(d => d.y0)
+    .outerRadius(d => d.y1)
+const render = function(data) {
+    const color = d3.scaleOrdinal(d3.schemeCategory10)
+    const fill = d => {
+        while (d.depth > 1)
+            d = d.parent;
+        console.log(d.data.institution);
+        return color(d.data.institution);
+    };
+    sun.append('g')
+        .selectAll('.datapath')
+        // this can be simplified as .data(root.descendants().filter(d => d.depth))
+        .data(root.descendants().filter(d => d.depth !== 0))
+        .join('path')
+        .attr('class', 'datapath')
+        .attr("fill", fill)
+        .attr("d", arc);
+    sun.append('g')
+        .selectAll('.datatext')
+        .data(root.descendants()
+            //.filter(d => d.depth && (d.x1 - d.x0) > Math.PI / 65 && d.data.name.length < 15))
+            .filter(d => d.depth))
+        .join("text")
+        .attr('class', 'datatext')
+        .attr("pointer-events", "none")
+        .attr("text-anchor", "middle")
+        .attr('font-size', d => d.data.institution.length < 15 ? '.55em' : '.35em' )
+        .attr("transform", function(d) {
+            const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+            const y = (d.y0 + d.y1) / 2;
+            // note that there is an implicit transform inherited from the maingroup;
+            return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180? 0 : 180}) 
+          translate(0, 5)`;
+        })
+        // the following code is alternative to the 'translate(0, 5) above; '
+        //.attr("dy", "0.35em")
+        .text(d => d.data.institution);
+
+}
+d3.json('./data/people-institution.json').then(
+    function(data){
+        root = d3.partition().size([2 * Math.PI, 300])
+        (d3.hierarchy(data).sum(d => d.publication)
+            .sort((a, b) => b.publication - a.publication));
+        render(root);
+        //console.log(root);
+    }
+)
