@@ -13,10 +13,9 @@ const gg = svg.append('g').attr('id', 'dots')
 const ggg = d3.select('#container').select('#linegraph')
     .attr('x',100)
     .attr('y',700);
-const sun = d3.select('#container').select('#sunburst')
+const sunb = d3.select('#container').select('#sunburst')
     .attr('x',800)
-    .attr('y',50)
-    .attr('viewbox',[0,0,600,600]);
+    .attr('y',50);
 let padding = {'left': 0.2*width, 'bottom': 0.25*height, 'top': 0.13*height, 'right': 0.15*width};
 let linchar = './data/resultnew.json';
 let root;
@@ -172,7 +171,7 @@ d3.json(linchar).then(
         let mixed = dati.mixed;
         let none = dati.none;
         //console.log(typeof(total[6].number));
-        console.log(total.length);
+        //console.log(total.length);
         for (i in total){
             //console.log(total[i].number);
             if (total[i].number > maxy)
@@ -474,10 +473,10 @@ const render = function(data) {
     const fill = d => {
         while (d.depth > 1)
             d = d.parent;
-        console.log(d.data.institution);
+        console.log(color(d.data.institution));
         return color(d.data.institution);
     };
-    sun.append('g')
+    sunb.append('g')
         .selectAll('.datapath')
         // this can be simplified as .data(root.descendants().filter(d => d.depth))
         .data(root.descendants().filter(d => d.depth !== 0))
@@ -485,7 +484,7 @@ const render = function(data) {
         .attr('class', 'datapath')
         .attr("fill", fill)
         .attr("d", arc);
-    sun.append('g')
+    sunb.append('g')
         .selectAll('.datatext')
         .data(root.descendants()
             //.filter(d => d.depth && (d.x1 - d.x0) > Math.PI / 65 && d.data.name.length < 15))
