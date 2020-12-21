@@ -51,8 +51,50 @@ h1 {
 }
 .line-path{
     fill: none;
-    stroke: steelblue;
-    stroke-width: 4;
+    stroke: blue;
+    stroke-width: 2;
+    opacity: 1;
+    stroke-linejoin: round;
+}
+.line-path2{
+    fill: none;
+    stroke: cyan;
+    stroke-width: 2;
+    opacity: 1;
+    stroke-linejoin: round;
+}
+.line-path3{
+    fill: none;
+    stroke: red;
+    stroke-width: 2;
+    opacity: 1;
+    stroke-linejoin: round;
+}
+.line-path4{
+    fill: none;
+    stroke: green;
+    stroke-width: 2;
+    opacity: 1;
+    stroke-linejoin: round;
+}
+.line-path5{
+    fill: none;
+    stroke: burlywood;
+    stroke-width: 2;
+    opacity: 1;
+    stroke-linejoin: round;
+}
+.line-path6{
+    fill: none;
+    stroke: violet;
+    stroke-width: 2;
+    opacity: 1;
+    stroke-linejoin: round;
+}
+.line-path7{
+    fill: none;
+    stroke: salmon;
+    stroke-width: 2;
     opacity: 1;
     stroke-linejoin: round;
 }
@@ -65,13 +107,13 @@ h1 {
 }
 #mainsvg{
     position: absolute;
-    left: 130px;
+    left: 30px;
     top: 0px;
 }
 #linegraph{
     position: absolute;
-    left: 0px;
-    top: 540px;
+    left: 70px;
+    top: 450px;
 }
 #sunburst{
     position: absolute;
