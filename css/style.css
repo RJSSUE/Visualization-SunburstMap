@@ -49,6 +49,13 @@ h1 {
     stroke: #fff;
     fill:#005DAA;
 }
+.line-path{
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 4;
+    opacity: 1;
+    stroke-linejoin: round;
+}
 #container {
     /*position: absolute;*/
     /*width: 2500px;*/

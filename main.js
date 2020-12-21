@@ -1,6 +1,4 @@
 let svg = d3.select('#container').select('#mainsvg');
-//const width = +svg.attr('width');
-//const height = +svg.attr('height');
 const width = 900;
 const height = 400;
 const margin = {top: 70, right: 10, bottom: 10, left: 10};
@@ -15,6 +13,35 @@ const sunb = d3.select('#container').select('#sunburst');
 let padding = {'left': 0.2*width, 'bottom': 0.25*height, 'top': 0.13*height, 'right': 0.15*width};
 let linchar = './data/resultnew.json';
 let root;
+let institutionColors = {
+    'Zhejiang University':'#0f4894',
+    'University of Wisconsin - Madison':'#9a203e',
+    'University of Washington':'#533788',
+    'University of Toronto':'#0b3362',
+    'University of Texas at Austin':'#cc5318',
+    'University of Pennsylvania':'#0c1e55',
+    'University of Michigan':'#fecd19',
+    'University of Maryland - College Park':'#d7353e',
+    'University of Illinois at Urbana-Champaign':'#e75132',
+    'University of California - San Diego':'#0e719a',
+    'University of California - Los Angeles':'#35508b',
+    'University of California - Berkeley':'#0c3c69',
+    'Tsinghua University':'#732bac',
+    'The Hong Kong University of Science and Technology':'#263f6a',
+    'Swiss Federal Institute of Technology Zurich':'#2c2c2c',
+    'Stanford University':'#b41d1a',
+    'Shanghai Jiao Tong University':'#ca2128',
+    'Peking University':'#91180b',
+    'Nanjing University':'#6a1a66',
+    'Massachusetts Institute of Technology':'#0d393b',
+    'Israel Institute of Technology':'#0d1440',
+    'Georgia Institute of Technology':'#b6a770',
+    'Fudan University':'#2a57a3',
+    'Cornell University':'#b62226',
+    'Columbia University':'#1451a7',
+    'Chinese University of Hong Kong':'#742675',
+    'Carnegie Mellon University':'#c6223a'
+};
 // convert dataPath to svgPath;
 // go to https://github.com/d3/d3-geo for more different projections;
 //const projection = d3.geoMercator();
@@ -30,16 +57,30 @@ const pathGenerator = d3.geoPath().projection(projection);
 let school_pos = './data/schoollocation.json';
 let pos_dict = {};
 let place_dict = {};
-let s_pos = null;
 let dat = null;
 // setting up the tip tool;
 const tip = d3.tip()
     .attr('class', 'd3-tip').html(function(d) { return d.properties.name });
 svg.call(tip);
+function get_min_max(data, attr) {
+    let min = 1e9;
+    let max = 0;
+    data.forEach(d => {
+        if(!isNaN(d[attr])) {
+            let v = d[attr];
+            if (v > max)
+                max = v;
+            if (v < min)
+                min = v;
+        }
+    });
+    console.log('attr', attr, 'min', min, 'max', max);
+
+    return [min, max];
+}
 d3.json(school_pos).then(function(DATA) {
     dat = DATA;
     let schools = dat.schools;
-    let nodes = dat.nodes;
     let linkis = dat.links;
     let links = [];
     for (i in schools){
@@ -51,7 +92,7 @@ d3.json(school_pos).then(function(DATA) {
         // console.log(pos_dict[schools[i].school]+'\n');
     }
     for(i in linkis){
-        let flag = 0
+        let flag = 0;
         for(j in schools){
             if(linkis[i].target == schools[j].school || linkis[i].source == schools[j].school){
                 flag += 1;
@@ -149,12 +190,6 @@ d3.json('./data/countries-110m.json').then(
             })
     }
 );
-function cx(x){
-    return 130.5+(x-1950)/70*1000;
-}
-function cy(x,maxy){
-    return 156-(x*120/(maxy+3));
-}
 d3.json(linchar).then(
     function(DATA){
         let dati = DATA;
@@ -200,8 +235,8 @@ d3.json(linchar).then(
             .attr('class','AI')
             .data(total)
             .enter().append('circle')
-            .attr('cx',(d,i)=>{return cx(AI[i].year)})
-            .attr('cy',(d,i)=>{return cy(AI[i].number,maxy)})
+            .attr('cx',(d,i)=>{return x(AI[i].year)})
+            .attr('cy',(d,i)=>{return y(AI[i].number)})
             .attr('r','2')
             .attr('fill','cyan')
             .attr('opacity',0.5)
@@ -215,8 +250,8 @@ d3.json(linchar).then(
                 //  console.log(String(schools[i].longitude)+'\n');
                 tooltip.html(txti)
                     //设置tooltip的位置
-                    .style("left", (cx(AI[i].year) + 10) + "px")
-                    .style("top", (cy(AI[i].number,maxy) +390) + "px")
+                    .style("left", (x(AI[i].year) + 10) + "px")
+                    .style("top", (y(AI[i].number) +390) + "px")
                     .style("visibility", "visible");
             })
             .on("mouseout", function (e,d) {
@@ -231,8 +266,8 @@ d3.json(linchar).then(
             .attr('class','system')
             .data(total)
             .enter().append('circle')
-            .attr('cx',(d,i)=>{return cx(system[i].year)})
-            .attr('cy',(d,i)=>{return cy(system[i].number,maxy)})
+            .attr('cx',(d,i)=>{return x(system[i].year)})
+            .attr('cy',(d,i)=>{return y(system[i].number,maxy)})
             .attr('r','2')
             .attr('fill','red')
             .attr('opacity',0.5)
@@ -246,8 +281,8 @@ d3.json(linchar).then(
                 //  console.log(String(schools[i].longitude)+'\n');
                 tooltip.html(txti)
                     //设置tooltip的位置
-                    .style("left", (cx(system[i].year) + 10) + "px")
-                    .style("top", (cy(system[i].number,maxy) +390) + "px")
+                    .style("left", (x(system[i].year) + 10) + "px")
+                    .style("top", (y(system[i].number) +390) + "px")
                     .style("visibility", "visible");
             })
             .on("mouseout", function (e,d) {
@@ -262,8 +297,8 @@ d3.json(linchar).then(
             .attr('class','theory')
             .data(total)
             .enter().append('circle')
-            .attr('cx',(d,i)=>{return cx(theory[i].year)})
-            .attr('cy',(d,i)=>{return cy(theory[i].number,maxy)})
+            .attr('cx',(d,i)=>{return x(theory[i].year)})
+            .attr('cy',(d,i)=>{return y(theory[i].number)})
             .attr('r','2')
             .attr('fill','green')
             .attr('stroke','green')
@@ -277,8 +312,8 @@ d3.json(linchar).then(
                 //  console.log(String(schools[i].longitude)+'\n');
                 tooltip.html(txti)
                     //设置tooltip的位置
-                    .style("left", (cx(theory[i].year) + 10) + "px")
-                    .style("top", (cy(theory[i].number,maxy) +390) + "px")
+                    .style("left", (x(theory[i].year) + 10) + "px")
+                    .style("top", (y(theory[i].number) +390) + "px")
                     .style("visibility", "visible");
             })
             .on("mouseout", function (e,d) {
@@ -293,8 +328,8 @@ d3.json(linchar).then(
             .attr('class','inter')
             .data(total)
             .enter().append('circle')
-            .attr('cx',(d,i)=>{return cx(inter[i].year)})
-            .attr('cy',(d,i)=>{return cy(inter[i].number,maxy)})
+            .attr('cx',(d,i)=>{return x(inter[i].year)})
+            .attr('cy',(d,i)=>{return y(inter[i].number,maxy)})
             .attr('r','2')
             .attr('fill','burlywood')
             .attr('stroke','burlywood')
@@ -308,8 +343,8 @@ d3.json(linchar).then(
                 //  console.log(String(schools[i].longitude)+'\n');
                 tooltip.html(txti)
                     //设置tooltip的位置
-                    .style("left", (cx(inter[i].year) + 10) + "px")
-                    .style("top", (cy(inter[i].number,maxy) +390) + "px")
+                    .style("left", (x(inter[i].year) + 10) + "px")
+                    .style("top", (y(inter[i].number) +390) + "px")
                     .style("visibility", "visible");
             })
             .on("mouseout", function (e,d) {
@@ -324,8 +359,8 @@ d3.json(linchar).then(
             .attr('class','mixed')
             .data(total)
             .enter().append('circle')
-            .attr('cx',(d,i)=>{return cx(mixed[i].year)})
-            .attr('cy',(d,i)=>{return cy(mixed[i].number,maxy)})
+            .attr('cx',(d,i)=>{return x(mixed[i].year)})
+            .attr('cy',(d,i)=>{return y(mixed[i].number)})
             .attr('r','2')
             .attr('opacity',0.5)
             .attr('fill','violet')
@@ -339,8 +374,8 @@ d3.json(linchar).then(
                 //  console.log(String(schools[i].longitude)+'\n');
                 tooltip.html(txti)
                     //设置tooltip的位置
-                    .style("left", (cx(mixed[i].year) + 10) + "px")
-                    .style("top", (cy(mixed[i].number,maxy) +390) + "px")
+                    .style("left", (x(mixed[i].year) + 10) + "px")
+                    .style("top", (y(mixed[i].number) +390) + "px")
                     .style("visibility", "visible");
             })
             .on("mouseout", function (e,d) {
@@ -355,8 +390,8 @@ d3.json(linchar).then(
             .attr('class','none')
             .data(total)
             .enter().append('circle')
-            .attr('cx',(d,i)=>{return cx(none[i].year)})
-            .attr('cy',(d,i)=>{return cy(none[i].number,maxy)})
+            .attr('cx',(d,i)=>{return x(none[i].year)})
+            .attr('cy',(d,i)=>{return y(none[i].number)})
             .attr('r','2')
             .attr('fill','salmon')
             .attr('opacity',0.5)
@@ -370,8 +405,8 @@ d3.json(linchar).then(
                 //  console.log(String(schools[i].longitude)+'\n');
                 tooltip.html(txti)
                     //设置tooltip的位置
-                    .style("left", (cx(none[i].year) + 10) + "px")
-                    .style("top", (cy(none[i].number,maxy) +390) + "px")
+                    .style("left", (x(none[i].year) + 10) + "px")
+                    .style("top", (y(none[i].number) +390) + "px")
                     .style("visibility", "visible");
             })
             .on("mouseout", function (e,d) {
@@ -386,8 +421,8 @@ d3.json(linchar).then(
             .attr('class','total')
             .data(total)
             .enter().append('circle')
-            .attr('cx',(d,i)=>{return cx(total[i].year)})
-            .attr('cy',(d,i)=>{return cy(total[i].number,maxy)})
+            .attr('cx',(d,i)=>{return x(total[i].year)})
+            .attr('cy',(d,i)=>{return y(total[i].number)})
             .attr('r','2')
             .attr('fill','blue')
             .attr('opacity',0.5)
@@ -401,8 +436,8 @@ d3.json(linchar).then(
                 //  console.log(String(schools[i].longitude)+'\n');
                 tooltip.html(txti)
                     //设置tooltip的位置
-                    .style("left", (cx(total[i].year) + 10) + "px")
-                    .style("top", (cy(total[i].number,maxy) +390) + "px")
+                    .style("left", (x(total[i].year) + 10) + "px")
+                    .style("top", (y(total[i].number) +390) + "px")
                     .style("visibility", "visible");
             })
             .on("mouseout", function (e,d) {
@@ -412,42 +447,13 @@ d3.json(linchar).then(
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             });
-        let tot=[]
         console.log(total);
-        let f = total.length;
-        let ii = 0;
-        while (ii < f){
-        //    console.log(typeof(ii));
-            let va = {}
-        //    console.log(total[ii]);
-            va.x1 = cx(parseInt(total[ii].year));
-            va.y1 = cy(total[ii].number,maxy);
-            if(ii < f-1){
-            //    console.log(i);
-                va.x2 = cx(parseInt(total[ii+1].year));
-                va.y2 = cy(total[ii+1].number,maxy);
-            }
-            else{
-                va.x2 = cx(total[ii].year);
-                va.y2 = cy(total[ii].number,maxy);
-            }
-            tot.push(va);
-          //  console.log(va);
-            ii+=1;
-        }
-        console.log(tot);
-        ggg.selectAll("line")
-            .data(tot)
-            .enter().append("line")
-            .attr('x1',(d,i)=>{return tot[i].x1})
-            .attr('y1',(d,i)=>{return tot[i].y1})
-            .attr('x2',(d,i)=>{return tot[i].x2})
-            .attr('y2',(d,i)=>{return tot[i].y2})
-            .attr("stroke", "blue")
-            .join("line")
-            .attr('opacity',1)
-            .attr("stroke-width", 4);
-
+        const lineGenerator = d3.line()
+            .x(d=>x(parseInt(d.year)))
+            .y(d=>y(d.number));
+        ggg.append('path')
+            .attr('class','line-path')
+            .attr('d',lineGenerator(total))
     }
 );
 const arc = d3.arc()
@@ -462,25 +468,15 @@ const arc = d3.arc()
     .innerRadius(d => d.y0)
     .outerRadius(d => d.y1)
 const render = function(data) {
-    const color = d3.scaleOrdinal(d3.schemeCategory10)
-    console.log(color)
-    // const fill = d => {
-    //     while (d.depth > 1)
-    //         d = d.parent;
-    //     console.log(color(d.data.institution));
-    //     return color(d.data.institution);
-    // };
+    // const color = d3.scaleOrdinal(d3.schemeCategory10)
+    // console.log(color)
     sunb.append('g')
         .selectAll('.datapath')
         // this can be simplified as .data(root.descendants().filter(d => d.depth))
         .data(root.descendants().filter(d => d.depth !== 0))
         .join('path')
         .attr('class', 'datapath')
-        .attr("fill", (d)=>{
-            console.log(d.parent.data.institution)
-            console.log(color(d.parent.data.institution));
-            return color(d.parent.data.institution);
-        })
+        .attr("fill", (d)=>institutionColors[d.parent.data.institution])
         .attr("d", arc);
     sunb.append('g')
         .selectAll('.datatext')
