@@ -1,6 +1,7 @@
 let svg = d3.select('#container').select('#mainsvg');
-const width = 900;
-const height = 400;
+const width = 700;
+var array;
+const height = 407;
 const margin = {top: 70, right: 10, bottom: 10, left: 10};
 const innerWidth = width - margin.left - margin.right;
 const innerHeight = height - margin.top - margin.bottom;
@@ -50,7 +51,7 @@ let institutionColors = {
 //const projection = d3.geoEquirectangular();
 const projection = d3.geoEquirectangular()
     .center([0,30])  // 指定投影中心，注意[]中的是经纬度
-    .scale(150)
+    .scale(129)//150 originial
     .translate([width / 2, height / 2-50]);
 //const projection = d3.geoTransverseMercator();
 const pathGenerator = d3.geoPath().projection(projection);
@@ -78,6 +79,22 @@ function get_min_max(data, attr) {
 
     return [min, max];
 }
+//获取多选
+/*function checkNum(){
+    var array =new Array();
+    for(var i=0;i<researchinterest.single.length;i++){
+        if(researchinterest.single[i].checked==true) {
+            console.log('true\n');
+            array[i] = 1;
+        }
+        else{
+            array[i]=0;
+            console.log('false\n');
+        }
+    }
+    return array;
+}*/
+function main(){
 d3.json(school_pos).then(function(DATA) {
     dat = DATA;
     let schools = dat.schools;
@@ -221,12 +238,13 @@ d3.json(linchar).then(
             .scale(y)
             .ticks(10)
             .tickFormat(d => d);
+        //array = checkNum()
         ggg.append('g')
-            .attr('transform', `translate(${30}, ${155})`)
+            .attr('transform', `translate(${0}, ${155})`)
             .call(axis_x)
             .attr('font-size', '0.8rem');
         ggg.append('g')
-            .attr('transform', `translate(${130}, ${0})`)
+            .attr('transform', `translate(${100}, ${0})`)
             .call(axis_y)
             .attr('font-size', '0.8rem');
 
@@ -240,6 +258,12 @@ d3.json(linchar).then(
             .attr('r','2')
             .attr('fill','cyan')
             .attr('opacity',0.5)
+          /*  .attr('visibility',(d,i)=>{
+                if(array[0] == 0)
+                    return 'hidden';
+                else
+                    return 'visible';
+            })*/
             .attr('stroke','cyan')
             .attr('stroke-width',1.5)
             .attr('stroke-linejoin','round')
@@ -274,6 +298,12 @@ d3.json(linchar).then(
             .attr('stroke','red')
             .attr('stroke-width',1.5)
             .attr('stroke-linejoin','round')
+          /*  .attr('visibility',(d,i)=>{
+                if(array[1] == 0)
+                    return 'hidden';
+                else
+                    return 'visible';
+            })*/
             .attr('stroke-linecap','round')
             .on('mouseover',function(d,i){
                 let txti = "<br/>" + String(system[i].year)+','+String(system[i].number) + "<p>";
@@ -304,6 +334,12 @@ d3.json(linchar).then(
             .attr('stroke','green')
             .attr('opacity',0.5)
             .attr('stroke-width',1.5)
+         /*   .attr('visibility',(d,i)=>{
+                if(array[2] == 0)
+                    return 'hidden';
+                else
+                    return 'visible';
+            })*/
             .attr('stroke-linejoin','round')
             .attr('stroke-linecap','round')
             .on('mouseover',function(d,i){
@@ -332,6 +368,12 @@ d3.json(linchar).then(
             .attr('cy',(d,i)=>{return y(inter[i].number,maxy)})
             .attr('r','2')
             .attr('fill','burlywood')
+        /*    .attr('visibility',(d,i)=>{
+                if(array[3] == 0)
+                    return 'hidden';
+                else
+                    return 'visible';
+            })*/
             .attr('stroke','burlywood')
             .attr('opacity',0.5)
             .attr('stroke-width',1.5)
@@ -365,6 +407,12 @@ d3.json(linchar).then(
             .attr('opacity',0.5)
             .attr('fill','violet')
             .attr('stroke','violet')
+         /*   .attr('visibility',(d,i)=>{
+                if(array[4] == 0)
+                    return 'hidden';
+                else
+                    return 'visible';
+            })*/
             .attr('stroke-width',1.5)
             .attr('stroke-linejoin','round')
             .attr('stroke-linecap','round')
@@ -397,6 +445,12 @@ d3.json(linchar).then(
             .attr('opacity',0.5)
             .attr('stroke','salmon')
             .attr('stroke-width',1.5)
+        /*    .attr('visibility',(d,i)=>{
+                if(array[5] == 0)
+                    return 'hidden';
+                else
+                    return 'visible';
+            })*/
             .attr('stroke-linejoin','round')
             .attr('stroke-linecap','round')
             .on('mouseover',function(d,i){
@@ -454,6 +508,24 @@ d3.json(linchar).then(
         ggg.append('path')
             .attr('class','line-path')
             .attr('d',lineGenerator(total))
+        ggg.append('path')
+            .attr('class','line-path2')
+            .attr('d',lineGenerator(AI))
+        ggg.append('path')
+            .attr('class','line-path3')
+            .attr('d',lineGenerator(system))
+        ggg.append('path')
+            .attr('class','line-path4')
+            .attr('d',lineGenerator(theory))
+        ggg.append('path')
+            .attr('class','line-path5')
+            .attr('d',lineGenerator(inter))
+        ggg.append('path')
+            .attr('class','line-path6')
+            .attr('d',lineGenerator(mixed))
+        ggg.append('path')
+            .attr('class','line-path7')
+            .attr('d',lineGenerator(none))
     }
 );
 const arc = d3.arc()
@@ -509,3 +581,13 @@ d3.json('./data/people-institution.json').then(
         //console.log(root);
     }
 )
+}
+main();
+d3.selectAll(".checkclass")
+    .on("click",function(){
+        console.log('clicked\n');
+        //     array=checkNum();
+        ggg.selectAll('circle')
+            .style("visibility","hidden");
+        main();
+    });
