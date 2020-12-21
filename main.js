@@ -1,8 +1,8 @@
 let svg = d3.select('#container').select('#mainsvg');
 //const width = +svg.attr('width');
 //const height = +svg.attr('height');
-const width = 700;
-const height = 407
+const width = 900;
+const height = 400;
 const margin = {top: 70, right: 10, bottom: 10, left: 10};
 const innerWidth = width - margin.left - margin.right;
 const innerHeight = height - margin.top - margin.bottom;
@@ -10,12 +10,8 @@ const g = svg.append('g').attr('id', 'maingroup')
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
 const gg = svg.append('g').attr('id', 'dots')
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
-const ggg = d3.select('#container').select('#linegraph')
-    .attr('x',100)
-    .attr('y',700);
-const sunb = d3.select('#container').select('#sunburst')
-    .attr('x',800)
-    .attr('y',50);
+const ggg = d3.select('#container').select('#linegraph');
+const sunb = d3.select('#container').select('#sunburst');
 let padding = {'left': 0.2*width, 'bottom': 0.25*height, 'top': 0.13*height, 'right': 0.15*width};
 let linchar = './data/resultnew.json';
 let root;
@@ -170,13 +166,10 @@ d3.json(linchar).then(
         let inter = dati.inter;
         let mixed = dati.mixed;
         let none = dati.none;
-        //console.log(typeof(total[6].number));
-        //console.log(total.length);
-        for (i in total){
-            //console.log(total[i].number);
-            if (total[i].number > maxy)
-                maxy = total[i].number;
-        }
+        total.map((i)=>{
+            if (i.number > maxy)
+                maxy = i.number;
+        })
         let x = d3.scaleLinear()
             .domain([1950,2020])
             .range([100, 1100]);
@@ -420,7 +413,7 @@ d3.json(linchar).then(
                 tooltip.style("visibility", "hidden");
             });
         let tot=[]
-        //console.log(total);
+        console.log(total);
         let f = total.length;
         let ii = 0;
         while (ii < f){
@@ -429,7 +422,7 @@ d3.json(linchar).then(
         //    console.log(total[ii]);
             va.x1 = cx(parseInt(total[ii].year));
             va.y1 = cy(total[ii].number,maxy);
-            if(i < f-1){
+            if(ii < f-1){
             //    console.log(i);
                 va.x2 = cx(parseInt(total[ii+1].year));
                 va.y2 = cy(total[ii+1].number,maxy);
@@ -442,7 +435,7 @@ d3.json(linchar).then(
           //  console.log(va);
             ii+=1;
         }
-        //console.log(tot);
+        console.log(tot);
         ggg.selectAll("line")
             .data(tot)
             .enter().append("line")
@@ -470,19 +463,24 @@ const arc = d3.arc()
     .outerRadius(d => d.y1)
 const render = function(data) {
     const color = d3.scaleOrdinal(d3.schemeCategory10)
-    const fill = d => {
-        while (d.depth > 1)
-            d = d.parent;
-        console.log(color(d.data.institution));
-        return color(d.data.institution);
-    };
+    console.log(color)
+    // const fill = d => {
+    //     while (d.depth > 1)
+    //         d = d.parent;
+    //     console.log(color(d.data.institution));
+    //     return color(d.data.institution);
+    // };
     sunb.append('g')
         .selectAll('.datapath')
         // this can be simplified as .data(root.descendants().filter(d => d.depth))
         .data(root.descendants().filter(d => d.depth !== 0))
         .join('path')
         .attr('class', 'datapath')
-        .attr("fill", fill)
+        .attr("fill", (d)=>{
+            console.log(d.parent.data.institution)
+            console.log(color(d.parent.data.institution));
+            return color(d.parent.data.institution);
+        })
         .attr("d", arc);
     sunb.append('g')
         .selectAll('.datatext')

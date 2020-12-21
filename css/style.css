@@ -30,14 +30,46 @@ html,body {
     height: 100%;
     font-size: 14px;
     overflow: hidden;
+    padding: 0;
+    margin: 0;
+    background: whitesmoke;
 }
 
-#container {
+h1 {
     position: absolute;
-    width: 1200px;
-    height: 700px;
-    background-color: rgba(0, 0, 0, 0);
-    overflow: hidden;
+    left: 20px;
+    top: 10px;
+    font-family: "Proxima Nova", Montserrat, sans-serif;
+    font-size: 2em;
+    font-weight: 100;
+    color: #005DAA; /* offical UK Kentucky blue */
+}
+
+.country {
+    stroke: #fff;
+    fill:#005DAA;
+}
+#container {
+    /*position: absolute;*/
+    /*width: 2500px;*/
+    /*height: 1500px;*/
+    /*background-color: rgba(0, 0, 0, 0);*/
+    /*overflow: hidden;*/
+}
+#mainsvg{
+    position: absolute;
+    left: 130px;
+    top: 0px;
+}
+#linegraph{
+    position: absolute;
+    left: 0px;
+    top: 540px;
+}
+#sunburst{
+    position: absolute;
+    left: 1000px;
+    top: 150px;
 }
 
 #tooltip{
