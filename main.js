@@ -345,7 +345,7 @@ function line(){
                     "color":"green"
                 },
                 {
-                    "name":"inter",
+                    "name":"interdisciplinary",
                     "color":"burlywood"
                 },
                 {
@@ -405,7 +405,7 @@ function line(){
                 .data(data_legend)
                 .enter().append("g")
                 .attr("class", "legend")
-                .attr("transform", function(d, i) { return "translate(-500," + (i * 15 + 30) + ")"; });  //transform属性便是整个图例的坐标
+                .attr("transform", function(d, i) { return "translate(-450," + (i * 15 + 30) + ")"; });  //transform属性便是整个图例的坐标
             legend.append("rect")
                 .attr("x", width - 25) //width是svg的宽度，x属性用来调整位置
                 // .attr("x", (width / 160) * 157)
