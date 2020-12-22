@@ -235,6 +235,10 @@ d3.json(linchar).then(
     function(DATA){
         var data_legend = [
             {
+                "name":"total",
+                "color":"blue"
+            },
+            {
                 "name":"AI",
                 "color":"cyan"
             },
