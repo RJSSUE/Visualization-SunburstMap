@@ -53,35 +53,30 @@ h1 {
     fill: none;
     stroke: blue;
     stroke-width: 2;
-    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path2{
     fill: none;
     stroke: cyan;
     stroke-width: 2;
-    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path3{
     fill: none;
     stroke: red;
     stroke-width: 2;
-    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path4{
     fill: none;
     stroke: green;
     stroke-width: 2;
-    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path5{
     fill: none;
     stroke: burlywood;
     stroke-width: 2;
-    opacity: 0.5;
     stroke-linejoin: round;
 }
 .total{
@@ -123,14 +118,12 @@ h1 {
     fill: none;
     stroke: violet;
     stroke-width: 2;
-    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path7{
     fill: none;
     stroke: salmon;
     stroke-width: 2;
-    opacity: 0.5;
     stroke-linejoin: round;
 }
 #container {
@@ -147,7 +140,7 @@ h1 {
 }
 #linegraph{
     position: absolute;
-    left: 70px;
+    left: 150px;
     top: 450px;
 }
 #sunburst{
@@ -176,4 +169,7 @@ h1 {
     background-color: rgba(240, 240, 240, 0.9);
     overflow: hidden;
     z-index: -1;
+}
+.checkclass{
+
 }

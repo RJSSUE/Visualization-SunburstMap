@@ -230,15 +230,45 @@ function interest(data,classname,color){
         .attr('stroke',color)
         .attr('r',2)
         .attr('opacity',0.5)
-        .on('mouseover',function(e,d){
-            console.log(this);
+        .on('mouseover',function(d,i){
+            //console.log(this);
             ggg.selectAll('circle')
                 .attr('opacity',0.1);
             ggg.selectAll('.'+classname)
                 .attr('r',4)
                 .attr('fill','yellow')
                 .attr('opacity',1);
-            let txti = "<br/>" + String(d.year)+','+String(d.number) + "<p>";
+            ggg.selectAll('path')
+                .attr('opacity',0.1);
+            if(classname == 'total'){
+                ggg.select('.line-path')
+                    .attr('opacity',1);
+            }
+            else if(classname == 'AI'){
+                ggg.select('.line-path2')
+                    .attr('opacity',1);
+            }
+            else if(classname == 'system'){
+                ggg.select('.line-path3')
+                    .attr('opacity',1);
+            }
+            else if(classname == 'theory'){
+                ggg.select('.line-path4')
+                    .attr('opacity',1);
+            }
+            else if(classname == 'inter'){
+                ggg.select('.line-path5')
+                    .attr('opacity',1);
+            }
+            else if(classname == 'mixed'){
+                ggg.select('.line-path6')
+                    .attr('opacity',1);
+            }
+            else if(classname == 'none'){
+                ggg.select('.line-path7')
+                    .attr('opacity',1);
+            }
+            let txti = "<br/>" +"Graduation Year: "+ String(d.year)+"<br/>"+classname+"<br/>"+"Graduation Number: "+String(d.number) + "<p>";
             let tooltip = d3.select("#tooltip");
             //  console.log(String(schools[i].longitude)+'\n');
             tooltip.html(txti)
@@ -248,7 +278,9 @@ function interest(data,classname,color){
                 .style("visibility", "visible");
         })
         .on("mouseout", function (e,d) {
-            d3.selectAll('circle')
+            ggg.selectAll('circle')
+                .attr('opacity',0.5);
+            ggg.selectAll('path')
                 .attr('opacity',0.5);
             d3.selectAll('.'+classname)
                 .attr('r',2)
@@ -364,24 +396,31 @@ function line(){
             ggg.append('path')
                 .attr('class','line-path')
                 .attr('d',lineGenerator(total))
+                .attr('opacity',0.5)
             ggg.append('path')
                 .attr('class','line-path2')
                 .attr('d',lineGenerator(AI))
+                .attr('opacity',0.5)
             ggg.append('path')
                 .attr('class','line-path3')
                 .attr('d',lineGenerator(system))
+                .attr('opacity',0.5)
             ggg.append('path')
                 .attr('class','line-path4')
                 .attr('d',lineGenerator(theory))
+                .attr('opacity',0.5)
             ggg.append('path')
                 .attr('class','line-path5')
                 .attr('d',lineGenerator(inter))
+                .attr('opacity',0.5)
             ggg.append('path')
                 .attr('class','line-path6')
                 .attr('d',lineGenerator(mixed))
+                .attr('opacity',0.5)
             ggg.append('path')
                 .attr('class','line-path7')
                 .attr('d',lineGenerator(none))
+                .attr('opacity',0.5)
         }
     );
 }
@@ -445,7 +484,7 @@ function main(){
     map();
     line();
     sunburst();
-    d3.select("form").selectAll(".checkclass")
+    d3.select("#form").selectAll(".checkclass")
         .on("click",function(){
             this.checked = !this.checked;
             console.log(this.class);
