@@ -528,6 +528,11 @@ function main(){
         .innerRadius(d => d.y0)
         .outerRadius(d => d.y1)
     const render = function(data) {
+        const fill = d =>{
+            while(d.depth > 1)
+                d = d.parent;
+            return institutionColors[d.data.institution];
+        }
         // const color = d3.scaleOrdinal(d3.schemeCategory10)
         // console.log(color)
         sunb.selectAll('.datapath')
@@ -535,7 +540,7 @@ function main(){
             .data(data.descendants().filter(d => d.depth !== 0))
             .join('path')
             .attr('class', 'datapath')
-            .attr("fill", (d)=>institutionColors[d.parent.data.institution])
+            .attr("fill", fill)
             .attr("d", arc);
         sunb.selectAll('.datatext')
             .data(data.descendants()
