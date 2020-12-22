@@ -134,11 +134,10 @@ function map(){
                 d3.select(this).transition()
                     .attr("stroke-width", 10)
                     .attr("stroke-opacity", 0.3)
-                let content = '<table>'
-                    + '<tr><td>Graduate from</td><td>' + String(links[i].source)+ '</td></tr>'
-                    + '<tr><td>Work at</td><td>'+ String(links[i].target) + '</td></tr>'
-                    + '<tr><td>Number</td><td>'+ String(links[i].weight)+ '</td></tr>'
-                    + '</table>';
+                let content = '<br/>'
+                    + "Graduate from: "+ String(links[i].source)+ '<br/>'
+                    +"Work at: "+ String(links[i].target) + '<br/>'
+                    + 'Number: '+ String(links[i].weight)+'<p>';
                 //console.log(place_dict);
                 d3.select('#tooltip').html(content)
                     .style('left', String((place_dict[links[i].target][0]+place_dict[links[i].source][0])/2)+'px')
@@ -169,13 +168,12 @@ function map(){
                 });
                 d3.select(this)
                     .style("fill", "goldenrod").attr('opacity',1);
-                let content = '<table>'
-                    + '<tr><td>Institution</td><td>' + d.school + '</td></tr>'
-                    + '<tr><td>Graduated faculty number</td><td>'+ d.weight+ '</td></tr>'
-                    + '<tr><td>Flow out</td><td>'+ d.out + '</td></tr>'
-                    + '<tr><td>Self_loop</td><td>'+ d.loop+ '</td></tr>'
-                    + '<tr><td>Flow in</td><td>'+ d.in+ '</td></tr>'
-                    + '</table>';
+                let content = '<br/>'
+                    + 'Institution: ' + String(d.school)+ '<br/>'
+                    + 'Graduated faculty number: '+ String(d.weight)+ '<br/>'
+                    + 'Flow out: '+ String(d.out )+ '<br/>'
+                    + 'Self_loop: '+ String(d.loop)+ '<br/>'
+                    + 'Flow in: '+ String(d.in)+ '<p>';
 
                 d3.select('#tooltip').html(content)
                     .style('left', String(place_dict[d.school][0]+50) + 'px')
@@ -529,14 +527,38 @@ function sunburst(){
             .attr("fill", fill)
             .attr("d", arc)
             .on("mouseover", function (d) {
+                console.log(d);
+                if(d.depth === 2){
+                    let con = '<br/>'
+                        + 'Name: ' + String(d.data.name)+ '<br/>'
+                        + 'Institution: '+ String(d.data.institution)+ '<br/>'
+                //        + '<tr><td>H-index: </td><td>'+ String(d.data[1]) + '<br/>'
+                        + 'Citation: '+ String(d.data.citations)+ '<br/>'
+                        + 'Average Publication: '+ String(d.data.averagepub)+ '<br/>'
+                        + 'Publication: '+ String(d.data.publication)+'<p>';
+                    //console.log(place_dict);
+                    d3.select('#tooltip').html(con)
+                        .style('left', '400px')
+                        .style('top', '10px')
+                        .style('visibility', 'visible');
+                }
+                else if(d.depth === 1){
+                    let con = "<br/>"+"Institution: "+String(d.data.institution)+'<p>'
+                    d3.select('#tooltip').html(con)
+                        .style('left', '400px')
+                        .style('top', '10px')
+                        .style('visibility', 'visible');
+                }
                 circles.attr('opacity',(e)=>{
                     if(e.school === d.data.institution)
                         return 1;
                     else
                         return 0.2;
-                });
-                d3.select(this)
+                })
+
+                let tt = d3.select(this)
                     .attr('opacity',1);
+                console.log(d);
                 linki.attr("stroke",(l)=>{
                     if(d.data.institution == l.source && d.data.institution == l.target)
                         return 'none';
@@ -553,7 +575,9 @@ function sunburst(){
                 linki.attr("stroke","#999");
                 d3.select(this)
                     .style('fill',fill)
-                    .attr('opacity',0.5)
+                    .attr('opacity',0.5);
+                d3.select('#tooltip')
+                    .style('visibility','hidden');
             })
         sunb.selectAll('.datatext')
             .data(data.descendants()
@@ -579,8 +603,8 @@ function sunburst(){
     d3.json('./data/people-institution.json').then(
         function(data){
             root = d3.partition().size([2 * Math.PI, 200])
-            (d3.hierarchy(data).sum(d => d.publication)
-                .sort((a, b) => b.publication - a.publication));
+            (d3.hierarchy(data).sum(d => d.averagepub)
+                .sort((a, b) => b.averagepub - a.averagepub));
             render(root);
         })
 }
