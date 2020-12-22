@@ -6,6 +6,9 @@ const margin = {top: 70, right: 10, bottom: 10, left: 10};
 const innerWidth = width - margin.left - margin.right;
 const innerHeight = height - margin.top - margin.bottom;
 const g = svg.append('g').attr('id', 'maingroup')
+    .attr('opacity',0.5)
+    .attr("stroke-width", 2)
+    .attr("stroke-opacity", 0.3)
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
 const gg = svg.append('g').attr('id', 'dots')
     .attr('transform', `translate(${margin.left}, ${margin.top})`);
@@ -54,7 +57,7 @@ let institutionColors = {
 //const projection = d3.geoEquirectangular();
 const projection = d3.geoEquirectangular()
     .center([0,30])  // 指定投影中心，注意[]中的是经纬度
-    .scale(129)//150 originial
+    .scale(100)//150 originial
     .translate([width / 2, height / 2-50]);
 //const projection = d3.geoTransverseMercator();
 const pathGenerator = d3.geoPath().projection(projection);
@@ -164,33 +167,33 @@ function main(){
             .data(schools)
             .enter().append('circle')
             .attr("class","point")
-            .attr("cx",(d,i)=>{return place_dict[schools[i].school][0]})
-            .attr("cy",(d,i)=>{return place_dict[schools[i].school][1]})
-            .attr("r",3)
-            .attr("opacity",0.5)
+            .attr("cx",(d)=>{return place_dict[d.school][0]})
+            .attr("cy",(d)=>{return place_dict[d.school][1]})
+            .attr("r",(d)=>2+6*d.weight/200)
+            .attr("opacity",0.6)
             .on("mouseover", function (d,i) {
                 d3.select(this).style("fill", "goldenrod").attr('opacity',1);
                 let content = '<table>'
-                    + '<tr><td>Institution</td><td>' + schools[i].school + '</td></tr>'
-                    + '<tr><td>Graduated faculty number</td><td>'+ schools[i].weight+ '</td></tr>'
-                    + '<tr><td>Flow out</td><td>'+ schools[i].out + '</td></tr>'
-                    + '<tr><td>Self_loop</td><td>'+ schools[i].loop+ '</td></tr>'
-                    + '<tr><td>Flow in</td><td>'+ schools[i].in+ '</td></tr>'
+                    + '<tr><td>Institution</td><td>' + d.school + '</td></tr>'
+                    + '<tr><td>Graduated faculty number</td><td>'+ d.weight+ '</td></tr>'
+                    + '<tr><td>Flow out</td><td>'+ d.out + '</td></tr>'
+                    + '<tr><td>Self_loop</td><td>'+ d.loop+ '</td></tr>'
+                    + '<tr><td>Flow in</td><td>'+ d.in+ '</td></tr>'
                     + '</table>';
 
                 d3.select('#tooltip').html(content)
-                    .style('left', String(place_dict[schools[i].school][0]+5) + 'px')
-                    .style('top', String(place_dict[schools[i].school][1]+5) + 'px')
+                    .style('left', String(place_dict[d.school][0]+50) + 'px')
+                    .style('top', String(place_dict[d.school][1]+80) + 'px')
                     .style('visibility', 'visible');
             })
             .on("mouseout", function (e,d) {
                 d3.select(this)
-                    .style("fill", 'red')
+                    .style('fill',(d)=>institutionColors[d.school])
                     .attr('opacity',0.5)
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             })
-            .style('fill','red');
+            .style('fill',(d)=>institutionColors[d.school]);
 
     });
 
@@ -238,6 +241,36 @@ function main(){
     );
     d3.json(linchar).then(
         function(DATA){
+            var data_legend = [
+                {
+                    "name":"total",
+                    "color":"blue"
+                },
+                {
+                    "name":"AI",
+                    "color":"cyan"
+                },
+                {
+                    "name":"system",
+                    "color":"red"
+                },
+                {
+                    "name":"theory",
+                    "color":"green"
+                },
+                {
+                    "name":"inter",
+                    "color":"burlywood"
+                },
+                {
+                    "name":"mixed",
+                    "color":"violet"
+                },
+                {
+                    "name":"none",
+                    "color":"salmon"
+                }
+            ];
             let dati = DATA;
             let maxy = 0;
             let total = dati.total;
@@ -529,6 +562,29 @@ function main(){
                         .attr('opacity',0.5)
                     let tooltip = d3.select("#tooltip");
                     tooltip.style("visibility", "hidden");
+                });
+            var legend = ggg.selectAll(".legend")
+                .data(data_legend)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) { return "translate(-500," + (i * 15 + 30) + ")"; });  //transform属性便是整个图例的坐标
+            legend.append("rect")
+                .attr("x", width - 25) //width是svg的宽度，x属性用来调整位置
+                // .attr("x", (width / 160) * 157)
+                //或者可以用width的分数来表示，更稳定一些，这是我试出来的，下面同
+                .attr("y", 8)
+                .attr("width", 40)
+                .attr("height", 3) //设低一些就是线，高一些就是面，很好理解
+                .style("fill", function(d){
+                    return d.color
+                });
+            legend.append("text")
+                .attr("x", width - 30)
+                // .attr("x", (width / 40) * 39)
+                .attr("y", 15)
+                .style("text-anchor", "end") //样式对齐
+                .text(function(d) {
+                    return d.name;
                 });
             console.log(total);
             const lineGenerator = d3.line()
