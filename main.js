@@ -61,11 +61,22 @@ const pathGenerator = d3.geoPath().projection(projection);
 let pos_dict = {};
 let place_dict = {};
 let dat = null;
+var array;
 // setting up the tip tool;
 const tip = d3.tip()
     .attr('class', 'd3-tip').html(function(d) { return d.properties.name });
 svg.call(tip);
 let circles,linki,frac,root,x,y;
+var class_id = {'total': 0, 'AI': 1, 'system':2,'theory':3,'inter':4, 'mixed':5,'none':6}
+function checkNum(){
+    var array =new Array();
+    for(var i=0;i<researchinterest.single.length;i++){
+        if(researchinterest.single[i].checked==true)
+            array[i]=1;
+        else array[i]=0;
+    }
+    return array;
+}
 function map(){
     d3.json('./data/schoollocation.json').then(function(DATA) {
         dat = DATA;
@@ -236,6 +247,7 @@ function map(){
     );
 }
 function interest(data,classname,color){
+    array = checkNum();
     ggg.append('g')
         .selectAll('circle')
         .data(data)
@@ -247,6 +259,12 @@ function interest(data,classname,color){
         .attr('stroke',color)
         .attr('r',2)
         .attr('opacity',0.5)
+        .attr('visibility',d=>{
+            if (array[class_id[classname]] == 1)
+                return 'visible';
+            else
+                return 'hidden';
+        })
         .on('mouseover',function(d,i){
             //console.log(this);
             ggg.selectAll('circle')
@@ -379,7 +397,7 @@ function line(){
             interest(AI,'AI','cyan');
             interest(system,'system','red');
             interest(theory,'theory','green');
-            interest(inter,'interdisciplinary','burlywood');
+            interest(inter,'inter','burlywood');
             interest(mixed,'mixed','violet');
             interest(none,'none','salmon');
             interest(total,'total','blue');
@@ -413,30 +431,72 @@ function line(){
                 .attr('class','line-path')
                 .attr('d',lineGenerator(total))
                 .attr('opacity',0.5)
+                .attr('visibility',d=>{
+                    if(array[0] == 1)
+                        return 'visible';
+                    else
+                        return 'hidden';
+                });
             ggg.append('path')
                 .attr('class','line-path2')
                 .attr('d',lineGenerator(AI))
                 .attr('opacity',0.5)
+                .attr('visibility',d=>{
+                    if(array[1] == 1)
+                        return 'visible';
+                    else
+                        return 'hidden';
+                });
             ggg.append('path')
                 .attr('class','line-path3')
                 .attr('d',lineGenerator(system))
                 .attr('opacity',0.5)
+                .attr('visibility',d=>{
+                    if(array[2] == 1)
+                        return 'visible';
+                    else
+                        return 'hidden';
+                });
             ggg.append('path')
                 .attr('class','line-path4')
                 .attr('d',lineGenerator(theory))
                 .attr('opacity',0.5)
+                .attr('visibility',d=>{
+                    if(array[3] == 1)
+                        return 'visible';
+                    else
+                        return 'hidden';
+                });
             ggg.append('path')
                 .attr('class','line-path5')
                 .attr('d',lineGenerator(inter))
                 .attr('opacity',0.5)
+                .attr('visibility',d=>{
+                    if(array[4] == 1)
+                        return 'visible';
+                    else
+                        return 'hidden';
+                });
             ggg.append('path')
                 .attr('class','line-path6')
                 .attr('d',lineGenerator(mixed))
                 .attr('opacity',0.5)
+                .attr('visibility',d=>{
+                    if(array[5] == 1)
+                        return 'visible';
+                    else
+                        return 'hidden';
+                });
             ggg.append('path')
                 .attr('class','line-path7')
                 .attr('d',lineGenerator(none))
                 .attr('opacity',0.5)
+                .attr('visibility',d=>{
+                    if(array[6] == 1)
+                        return 'visible';
+                    else
+                        return 'hidden';
+                });
         }
     );
 }
@@ -539,3 +599,104 @@ function main(){
 }
 
 main();
+function clicked(){
+    array = checkNum();
+    ggg.selectAll('.total')
+        .attr('visibility',d=>{
+            if(array[0] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.AI')
+        .attr('visibility',d=>{
+            if(array[1] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.system')
+        .attr('visibility',d=>{
+            if(array[2] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.inter')
+        .attr('visibility',d=>{
+            if(array[4] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.theory')
+        .attr('visibility',d=>{
+            if(array[3] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.mixed')
+        .attr('visibility',d=>{
+            if(array[5] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.none')
+        .attr('visibility',d=>{
+            if(array[6] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.line-path')
+        .attr('visibility',d=>{
+            if(array[0] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.line-path2')
+        .attr('visibility',d=>{
+            if(array[1] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.line-path3')
+        .attr('visibility',d=>{
+            if(array[2] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.line-path4')
+        .attr('visibility',d=>{
+            if(array[3] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.line-path5')
+        .attr('visibility',d=>{
+            if(array[4] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.line-path6')
+        .attr('visibility',d=>{
+            if(array[5] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+    ggg.selectAll('.line-path7')
+        .attr('visibility',d=>{
+            if(array[6] == 0)
+                return 'hidden';
+            else
+                return 'visible';
+        });
+}

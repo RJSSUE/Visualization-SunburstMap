@@ -27,17 +27,19 @@
     <script src="./main.js"></script>
     <div id='tooltip'></div>
     <form name="researchinterest" style="position:absolute;top:480px;left:100px;line-height:9px;">
-        <input type="checkbox" class="checkclass" name="single" id="AI"  checked="true" style="margin-bottom:0px"/>AI
+        <input type="checkbox" class="checkclass" name="single" id="_total"  checked="checked" onclick = "clicked()" style="margin-bottom:0px"/>total
         </br></br>
-        <input type="checkbox" class="checkclass" name="single" id="system"  checked="true" style="margin-bottom:0px"/>system
+        <input type="checkbox" class="checkclass" name="single" id="_AI"  checked="checked" onclick = "clicked()" style="margin-bottom:0px"/>AI
         </br></br>
-        <input type="checkbox" class="checkclass" name="single" id="theory"  checked="false" style="margin-bottom:0px" />theory
+        <input type="checkbox" class="checkclass" name="single" id="_system"  checked="unchecked" onclick = "clicked() "style="margin-bottom:0px"/>system
         </br></br>
-        <input type="checkbox" class="checkclass" name="single" id="inter"  checked="false" style="margin-bottom:0px"/>interdisciplinary
+        <input type="checkbox" class="checkclass" name="single" id="_theory" checked = 'checked' onclick = "clicked()" style="margin-bottom:0px" />theory
         </br></br>
-        <input type="checkbox" class="checkclass" name="single" id="mixed"  checked="true" style="margin-bottom:0px"/>mixed
+        <input type="checkbox" class="checkclass" name="single" id="_inter" checked = 'checked' onclick = "clicked()" style="margin-bottom:0px"/>interdisciplinary
         </br></br>
-        <input type="checkbox" class="checkclass" name="single" id="none"  checked="true" style="margin-bottom:0px"/>-
+        <input type="checkbox" class="checkclass" name="single" id="_mixed"  checked="unchecked" onclick = "clicked()" style="margin-bottom:0px"/>mixed
+        </br></br>
+        <input type="checkbox" class="checkclass" name="single" id="_none"  checked="checked" onclick = "clicked()" style="margin-bottom:0px"/>-
         </br></br>
     </form>
 </body>
