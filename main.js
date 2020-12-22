@@ -94,13 +94,17 @@ function get_min_max(data, attr) {
     }
     return array;
 }*/
+nodes_index_dict={};
 function main(){
 d3.json(school_pos).then(function(DATA) {
     dat = DATA;
     let schools = dat.schools;
     let linkis = dat.links;
     let links = [];
+    let cnt = 0;
     for (i in schools){
+        nodes_index_dict[schools[i].school] = cnt;
+        cnt +=1;
         let s = schools[i].longitude;
         let t = schools[i].latitude;
         pos_dict[schools[i].school] = [s,t];
@@ -124,6 +128,10 @@ d3.json(school_pos).then(function(DATA) {
         .data(links)
         .enter().append('line')
         .attr('x1',d=>place_dict[d.source][0])
+        .attr("class", function (d, i) {
+           // console.log(nodes_index_dict[links[i].source]+' '+nodes_index_dict[links[i].target]+'\n');
+            return "link _s" + nodes_index_dict[links[i].source] + " _t" + nodes_index_dict[links[i].target];
+        })
         .attr('y1',d=>place_dict[d.source][1])
         .attr('x2',d=>place_dict[d.target][0])
         .attr('y2',d=>place_dict[d.target][1])
@@ -143,6 +151,22 @@ d3.json(school_pos).then(function(DATA) {
         .attr("opacity",0.5)
         .on("mouseover", function (d,i) {
             d3.select(this).style("fill", "goldenrod").attr('opacity',1);
+            //let obj = d3.select(this);
+            gg.selectAll("._s" + d3.select(this).attr("class").substring(1))
+                .each(function(){
+                    let obj = d3.select(this);
+                    obj.style("stroke", "red")
+                    //  .style("stroke-width", 2.5);
+                })
+                .style("stroke-width",(d,i)=>{return Math.max(d.weight,2);});
+            gg.selectAll("._t" + d3.select(this).attr("class").substring(1))
+                .each(function () {
+                    let obj = d3.select(this);
+                    obj.style("stroke", "green")
+                    //    .style("stroke-width", 2.5);
+                })
+                .style("stroke-width",(d,i)=>{return Math.max(d.weight,2);});
+
             let txt;
             txt = "<br/>" + String(schools[i].school) + "<p>";
             let tooltip = d3.select("#tooltip");
@@ -209,7 +233,33 @@ d3.json('./data/countries-110m.json').then(
 );
 d3.json(linchar).then(
     function(DATA){
-        let dati = DATA;
+        var data_legend = [
+            {
+                "name":"AI",
+                "color":"cyan"
+            },
+            {
+                "name":"system",
+                "color":"red"
+            },
+            {
+                "name":"theory",
+                "color":"green"
+            },
+            {
+                "name":"inter",
+                "color":"burlywood"
+            },
+            {
+                "name":"mixed",
+                "color":"violet"
+            },
+            {
+                "name":"none",
+                "color":"salmon"
+            }
+        ];
+    let dati = DATA;
         let maxy = 0;
         let total = dati.total;
         let AI = dati.AI;
@@ -239,6 +289,7 @@ d3.json(linchar).then(
             .ticks(10)
             .tickFormat(d => d);
         //array = checkNum()
+
         ggg.append('g')
             .attr('transform', `translate(${0}, ${155})`)
             .call(axis_x)
@@ -247,8 +298,31 @@ d3.json(linchar).then(
             .attr('transform', `translate(${100}, ${0})`)
             .call(axis_y)
             .attr('font-size', '0.8rem');
+        var legend = ggg.selectAll(".legend")
+            .data(data_legend)
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) { return "translate(-500," + (i * 15 + 30) + ")"; });  //transform属性便是整个图例的坐标
+        legend.append("rect")
+            .attr("x", width - 25) //width是svg的宽度，x属性用来调整位置
+            // .attr("x", (width / 160) * 157)
+            //或者可以用width的分数来表示，更稳定一些，这是我试出来的，下面同
+            .attr("y", 8)
+            .attr("width", 40)
+            .attr("height", 3) //设低一些就是线，高一些就是面，很好理解
+            .style("fill", function(d){
+                return d.color
+            });
+        legend.append("text")
+            .attr("x", width - 30)
+            // .attr("x", (width / 40) * 39)
+            .attr("y", 15)
+            .style("text-anchor", "end") //样式对齐
+            .text(function(d) {
+                return d.name;
+            });
 
-        ggg.append('g')
+        let a = ggg.append('g')
             .selectAll('circle')
             .attr('class','AI')
             .data(total)
@@ -285,14 +359,14 @@ d3.json(linchar).then(
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             });
-        ggg.append('g')
+        let s = ggg.append('g')
             .selectAll('circle')
             .attr('class','system')
             .data(total)
             .enter().append('circle')
             .attr('cx',(d,i)=>{return x(system[i].year)})
             .attr('cy',(d,i)=>{return y(system[i].number,maxy)})
-            .attr('r','2')
+            .attr('r',2)
             .attr('fill','red')
             .attr('opacity',0.5)
             .attr('stroke','red')
@@ -306,6 +380,20 @@ d3.json(linchar).then(
             })*/
             .attr('stroke-linecap','round')
             .on('mouseover',function(d,i){
+                d3.select(this)
+                    .style("fill",'black');
+                console.log('select\n');
+                //为什么这里一点效果都没有orz
+                d3.select("#container")
+                    .select("#linegraph")
+                    .selectAll(".system")
+                    .each(function(){
+                        let obj = d3.select(this);
+                        console.log(1);
+                        obj.attr('r',4)
+                            .attr('opacity',1);
+                    });
+
                 let txti = "<br/>" + String(system[i].year)+','+String(system[i].number) + "<p>";
                 let tooltip = d3.select("#tooltip");
                 //  console.log(String(schools[i].longitude)+'\n');
@@ -322,7 +410,7 @@ d3.json(linchar).then(
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             });
-        ggg.append('g')
+        let th = ggg.append('g')
             .selectAll('circle')
             .attr('class','theory')
             .data(total)
@@ -343,6 +431,8 @@ d3.json(linchar).then(
             .attr('stroke-linejoin','round')
             .attr('stroke-linecap','round')
             .on('mouseover',function(d,i){
+                d3.select(this)
+                    .style("fill", 'black');
                 let txti = "<br/>" + String(theory[i].year)+','+String(theory[i].number) + "<p>";
                 let tooltip = d3.select("#tooltip");
                 //  console.log(String(schools[i].longitude)+'\n');
@@ -359,7 +449,7 @@ d3.json(linchar).then(
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             });
-        ggg.append('g')
+        let inte = ggg.append('g')
             .selectAll('circle')
             .attr('class','inter')
             .data(total)
@@ -396,7 +486,7 @@ d3.json(linchar).then(
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             });
-        ggg.append('g')
+        let m = ggg.append('g')
             .selectAll('circle')
             .attr('class','mixed')
             .data(total)
@@ -433,7 +523,7 @@ d3.json(linchar).then(
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             });
-        ggg.append('g')
+        let n = ggg.append('g')
             .selectAll('circle')
             .attr('class','none')
             .data(total)
@@ -470,7 +560,7 @@ d3.json(linchar).then(
                 let tooltip = d3.select("#tooltip");
                 tooltip.style("visibility", "hidden");
             })
-        ggg.append('g')
+        let t = ggg.append('g')
             .selectAll('circle')
             .attr('class','total')
             .data(total)
