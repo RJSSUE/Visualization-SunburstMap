@@ -18,7 +18,6 @@ const sunb = d3.select('#container').select('#sunburst')
     .append('g')
     .attr('transform', `translate(${200}, ${200})`);;
 let padding = {'left': 0.2*width, 'bottom': 0.25*height, 'top': 0.13*height, 'right': 0.15*width};
-let linchar = './data/resultnew.json';
 let root;
 let institutionColors = {
     'Zhejiang University':'#0f4894',
@@ -61,7 +60,6 @@ const projection = d3.geoEquirectangular()
     .translate([width / 2, height / 2-50]);
 //const projection = d3.geoTransverseMercator();
 const pathGenerator = d3.geoPath().projection(projection);
-let school_pos = './data/schoollocation.json';
 let pos_dict = {};
 let place_dict = {};
 let dat = null;
@@ -69,24 +67,8 @@ let dat = null;
 const tip = d3.tip()
     .attr('class', 'd3-tip').html(function(d) { return d.properties.name });
 svg.call(tip);
-function get_min_max(data, attr) {
-    let min = 1e9;
-    let max = 0;
-    data.forEach(d => {
-        if(!isNaN(d[attr])) {
-            let v = d[attr];
-            if (v > max)
-                max = v;
-            if (v < min)
-                min = v;
-        }
-    });
-    console.log('attr', attr, 'min', min, 'max', max);
-
-    return [min, max];
-}
-function main(){
-    d3.json(school_pos).then(function(DATA) {
+function map(){
+    d3.json('./data/schoollocation.json').then(function(DATA) {
         dat = DATA;
         let schools = dat.schools;
         let linkis = dat.links;
@@ -127,7 +109,6 @@ function main(){
             }
 
         }
-        console.log(links);
         let linki = gg.selectAll('line')
             .data(links)
             .enter().append('line')
@@ -143,7 +124,6 @@ function main(){
                 d3.select(this).transition()
                     .attr("stroke-width", 10)
                     .attr("stroke-opacity", 0.3)
-                console.log(d.source+'\n')
                 let content = '<table>'
                     + '<tr><td>Graduate from</td><td>' + String(links[i].source)+ '</td></tr>'
                     + '<tr><td>Work at</td><td>'+ String(links[i].target) + '</td></tr>'
@@ -196,18 +176,15 @@ function main(){
             .style('fill',(d)=>institutionColors[d.school]);
 
     });
-
-
     let worldmeta;
     let lastid = undefined;
-
     d3.json('./data/countries-110m.json').then(
         function(data){
             // convert topo-json to geo-json;
             worldmeta = topojson.feature(data, data.objects.countries);
 
             // this code is really important if you want to fit your geoPaths (map) in your SVG element;
-           // projection.fitSize([innerWidth, innerHeight], worldmeta);
+            // projection.fitSize([innerWidth, innerHeight], worldmeta);
             projection(worldmeta);
             // perform data-join;
             const paths = g.selectAll('path')
@@ -239,7 +216,44 @@ function main(){
                 })
         }
     );
-    d3.json(linchar).then(
+}
+let x, y;
+function interest(data,classname,color){
+    ggg.append('g')
+        .selectAll('circle')
+        .data(data)
+        .enter().append('circle')
+        .attr('class',classname)
+        .attr('cx',(d)=>{return x(d.year)})
+        .attr('cy',(d,i)=>{return y(d.number)})
+        .attr('r','2')
+        .attr('fill',color)
+        .attr('opacity',0.5)
+        .attr('stroke',color)
+        .attr('stroke-width',1.5)
+        .attr('stroke-linejoin','round')
+        .attr('stroke-linecap','round')
+        .on('mouseover',function(d){
+            console.log(this);
+            let txti = "<br/>" + String(d.year)+','+String(d.number) + "<p>";
+            let tooltip = d3.select("#tooltip");
+            //  console.log(String(schools[i].longitude)+'\n');
+            tooltip.html(txti)
+                //设置tooltip的位置
+                .style("left", (x(d.year) + 10) + "px")
+                .style("top", (y(d.number) +390) + "px")
+                .style("visibility", "visible");
+        })
+        .on("mouseout", function (e,d) {
+            d3.select(this)
+                .style("fill", 'cyan')
+                .attr('opacity',0.5)
+            let tooltip = d3.select("#tooltip");
+            tooltip.style("visibility", "hidden");
+        });
+}
+function line(){
+    d3.json('./data/resultnew.json').then(
         function(DATA){
             var data_legend = [
                 {
@@ -284,7 +298,7 @@ function main(){
                 if (i.number > maxy)
                     maxy = i.number;
             })
-            let x = d3.scaleLinear()
+            x = d3.scaleLinear()
                 .domain([1950,2020])
                 .range([100, 1100]);
             let axis_x = d3.axisBottom()
@@ -293,7 +307,7 @@ function main(){
                 .tickFormat(d => d);
 
             // y axis - publications
-            let y = d3.scaleLinear()
+            y = d3.scaleLinear()
                 .domain([maxy+3,0])
                 .range([35,155]);
             let axis_y = d3.axisLeft()
@@ -309,260 +323,13 @@ function main(){
                 .attr('transform', `translate(${100}, ${0})`)
                 .call(axis_y)
                 .attr('font-size', '0.8rem');
-
-            ggg.append('g')
-                .selectAll('circle')
-                .attr('class','AI')
-                .data(total)
-                .enter().append('circle')
-                .attr('cx',(d,i)=>{return x(AI[i].year)})
-                .attr('cy',(d,i)=>{return y(AI[i].number)})
-                .attr('r','2')
-                .attr('fill','cyan')
-                .attr('opacity',0.5)
-              /*  .attr('visibility',(d,i)=>{
-                    if(array[0] == 0)
-                        return 'hidden';
-                    else
-                        return 'visible';
-                })*/
-                .attr('stroke','cyan')
-                .attr('stroke-width',1.5)
-                .attr('stroke-linejoin','round')
-                .attr('stroke-linecap','round')
-                .on('mouseover',function(d,i){
-                    let txti = "<br/>" + String(AI[i].year)+','+String(AI[i].number) + "<p>";
-                    let tooltip = d3.select("#tooltip");
-                    //  console.log(String(schools[i].longitude)+'\n');
-                    tooltip.html(txti)
-                        //设置tooltip的位置
-                        .style("left", (x(AI[i].year) + 10) + "px")
-                        .style("top", (y(AI[i].number) +390) + "px")
-                        .style("visibility", "visible");
-                })
-                .on("mouseout", function (e,d) {
-                    d3.select(this)
-                        .style("fill", 'cyan')
-                        .attr('opacity',0.5)
-                    let tooltip = d3.select("#tooltip");
-                    tooltip.style("visibility", "hidden");
-                });
-            ggg.append('g')
-                .selectAll('circle')
-                .attr('class','system')
-                .data(total)
-                .enter().append('circle')
-                .attr('cx',(d,i)=>{return x(system[i].year)})
-                .attr('cy',(d,i)=>{return y(system[i].number,maxy)})
-                .attr('r','2')
-                .attr('fill','red')
-                .attr('opacity',0.5)
-                .attr('stroke','red')
-                .attr('stroke-width',1.5)
-                .attr('stroke-linejoin','round')
-              /*  .attr('visibility',(d,i)=>{
-                    if(array[1] == 0)
-                        return 'hidden';
-                    else
-                        return 'visible';
-                })*/
-                .attr('stroke-linecap','round')
-                .on('mouseover',function(d,i){
-                    let txti = "<br/>" + String(system[i].year)+','+String(system[i].number) + "<p>";
-                    let tooltip = d3.select("#tooltip");
-                    //  console.log(String(schools[i].longitude)+'\n');
-                    tooltip.html(txti)
-                        //设置tooltip的位置
-                        .style("left", (x(system[i].year) + 10) + "px")
-                        .style("top", (y(system[i].number) +390) + "px")
-                        .style("visibility", "visible");
-                })
-                .on("mouseout", function (e,d) {
-                    d3.select(this)
-                        .style("fill", 'red')
-                        .attr('opacity',0.5)
-                    let tooltip = d3.select("#tooltip");
-                    tooltip.style("visibility", "hidden");
-                });
-            ggg.append('g')
-                .selectAll('circle')
-                .attr('class','theory')
-                .data(total)
-                .enter().append('circle')
-                .attr('cx',(d,i)=>{return x(theory[i].year)})
-                .attr('cy',(d,i)=>{return y(theory[i].number)})
-                .attr('r','2')
-                .attr('fill','green')
-                .attr('stroke','green')
-                .attr('opacity',0.5)
-                .attr('stroke-width',1.5)
-             /*   .attr('visibility',(d,i)=>{
-                    if(array[2] == 0)
-                        return 'hidden';
-                    else
-                        return 'visible';
-                })*/
-                .attr('stroke-linejoin','round')
-                .attr('stroke-linecap','round')
-                .on('mouseover',function(d,i){
-                    let txti = "<br/>" + String(theory[i].year)+','+String(theory[i].number) + "<p>";
-                    let tooltip = d3.select("#tooltip");
-                    //  console.log(String(schools[i].longitude)+'\n');
-                    tooltip.html(txti)
-                        //设置tooltip的位置
-                        .style("left", (x(theory[i].year) + 10) + "px")
-                        .style("top", (y(theory[i].number) +390) + "px")
-                        .style("visibility", "visible");
-                })
-                .on("mouseout", function (e,d) {
-                    d3.select(this)
-                        .style("fill", 'green')
-                        .attr('opacity',0.5)
-                    let tooltip = d3.select("#tooltip");
-                    tooltip.style("visibility", "hidden");
-                });
-            ggg.append('g')
-                .selectAll('circle')
-                .attr('class','inter')
-                .data(total)
-                .enter().append('circle')
-                .attr('cx',(d,i)=>{return x(inter[i].year)})
-                .attr('cy',(d,i)=>{return y(inter[i].number,maxy)})
-                .attr('r','2')
-                .attr('fill','burlywood')
-            /*    .attr('visibility',(d,i)=>{
-                    if(array[3] == 0)
-                        return 'hidden';
-                    else
-                        return 'visible';
-                })*/
-                .attr('stroke','burlywood')
-                .attr('opacity',0.5)
-                .attr('stroke-width',1.5)
-                .attr('stroke-linejoin','round')
-                .attr('stroke-linecap','round')
-                .on('mouseover',function(d,i){
-                    let txti = "<br/>" + String(total[i].year)+','+String(total[i].number) + "<p>";
-                    let tooltip = d3.select("#tooltip");
-                    //  console.log(String(schools[i].longitude)+'\n');
-                    tooltip.html(txti)
-                        //设置tooltip的位置
-                        .style("left", (x(inter[i].year) + 10) + "px")
-                        .style("top", (y(inter[i].number) +390) + "px")
-                        .style("visibility", "visible");
-                })
-                .on("mouseout", function (e,d) {
-                    d3.select(this)
-                        .style("fill", 'burlywood')
-                        .attr('opacity',0.5)
-                    let tooltip = d3.select("#tooltip");
-                    tooltip.style("visibility", "hidden");
-                });
-            ggg.append('g')
-                .selectAll('circle')
-                .attr('class','mixed')
-                .data(total)
-                .enter().append('circle')
-                .attr('cx',(d,i)=>{return x(mixed[i].year)})
-                .attr('cy',(d,i)=>{return y(mixed[i].number)})
-                .attr('r','2')
-                .attr('opacity',0.5)
-                .attr('fill','violet')
-                .attr('stroke','violet')
-             /*   .attr('visibility',(d,i)=>{
-                    if(array[4] == 0)
-                        return 'hidden';
-                    else
-                        return 'visible';
-                })*/
-                .attr('stroke-width',1.5)
-                .attr('stroke-linejoin','round')
-                .attr('stroke-linecap','round')
-                .on('mouseover',function(d,i){
-                    let txti = "<br/>" + String(mixed[i].year)+','+String(mixed[i].number) + "<p>";
-                    let tooltip = d3.select("#tooltip");
-                    //  console.log(String(schools[i].longitude)+'\n');
-                    tooltip.html(txti)
-                        //设置tooltip的位置
-                        .style("left", (x(mixed[i].year) + 10) + "px")
-                        .style("top", (y(mixed[i].number) +390) + "px")
-                        .style("visibility", "visible");
-                })
-                .on("mouseout", function (e,d) {
-                    d3.select(this)
-                        .style("fill", 'violet')
-                        .attr('opacity',0.5)
-                    let tooltip = d3.select("#tooltip");
-                    tooltip.style("visibility", "hidden");
-                });
-            ggg.append('g')
-                .selectAll('circle')
-                .attr('class','none')
-                .data(total)
-                .enter().append('circle')
-                .attr('cx',(d,i)=>{return x(none[i].year)})
-                .attr('cy',(d,i)=>{return y(none[i].number)})
-                .attr('r','2')
-                .attr('fill','salmon')
-                .attr('opacity',0.5)
-                .attr('stroke','salmon')
-                .attr('stroke-width',1.5)
-            /*    .attr('visibility',(d,i)=>{
-                    if(array[5] == 0)
-                        return 'hidden';
-                    else
-                        return 'visible';
-                })*/
-                .attr('stroke-linejoin','round')
-                .attr('stroke-linecap','round')
-                .on('mouseover',function(d,i){
-                    let txti = "<br/>" + String(none[i].year)+','+String(none[i].number) + "<p>";
-                    let tooltip = d3.select("#tooltip");
-                    //  console.log(String(schools[i].longitude)+'\n');
-                    tooltip.html(txti)
-                        //设置tooltip的位置
-                        .style("left", (x(none[i].year) + 10) + "px")
-                        .style("top", (y(none[i].number) +390) + "px")
-                        .style("visibility", "visible");
-                })
-                .on("mouseout", function (e,d) {
-                    d3.select(this)
-                        .style("fill", 'salmon')
-                        .attr('opacity',0.5)
-                    let tooltip = d3.select("#tooltip");
-                    tooltip.style("visibility", "hidden");
-                })
-            ggg.append('g')
-                .selectAll('circle')
-                .attr('class','total')
-                .data(total)
-                .enter().append('circle')
-                .attr('cx',(d,i)=>{return x(total[i].year)})
-                .attr('cy',(d,i)=>{return y(total[i].number)})
-                .attr('r','2')
-                .attr('fill','blue')
-                .attr('opacity',0.5)
-                .attr('stroke','blue')
-                .attr('stroke-width',1.5)
-                .attr('stroke-linejoin','round')
-                .attr('stroke-linecap','round')
-                .on('mouseover',function(d,i){
-                    let txti = "<br/>" + String(total[i].year)+','+String(total[i].number) + "<p>";
-                    let tooltip = d3.select("#tooltip");
-                    //  console.log(String(schools[i].longitude)+'\n');
-                    tooltip.html(txti)
-                        //设置tooltip的位置
-                        .style("left", (x(total[i].year) + 10) + "px")
-                        .style("top", (y(total[i].number) +390) + "px")
-                        .style("visibility", "visible");
-                })
-                .on("mouseout", function (e,d) {
-                    d3.select(this)
-                        .style("fill", 'blue')
-                        .attr('opacity',0.5)
-                    let tooltip = d3.select("#tooltip");
-                    tooltip.style("visibility", "hidden");
-                });
+            interest(AI,'AI','cyan');
+            interest(system,'system','red');
+            interest(theory,'theory','green');
+            interest(inter,'inter','burlywood');
+            interest(mixed,'mixed','violet');
+            interest(none,'none','salmon');
+            interest(total,'total','blue');
             var legend = ggg.selectAll(".legend")
                 .data(data_legend)
                 .enter().append("g")
@@ -586,7 +353,6 @@ function main(){
                 .text(function(d) {
                     return d.name;
                 });
-            console.log(total);
             const lineGenerator = d3.line()
                 .x(d=>x(parseInt(d.year)))
                 .y(d=>y(d.number));
@@ -613,6 +379,8 @@ function main(){
                 .attr('d',lineGenerator(none))
         }
     );
+}
+function sunburst(){
     const arc = d3.arc()
         .startAngle(d => d.x0)
         .endAngle(d => d.x1)
@@ -667,6 +435,11 @@ function main(){
                 .sort((a, b) => b.publication - a.publication));
             render(root);
         })
+}
+function main(){
+    map();
+    line();
+    sunburst();
     d3.select("form").selectAll(".checkclass")
         .on("click",function(){
             this.checked = !this.checked;
