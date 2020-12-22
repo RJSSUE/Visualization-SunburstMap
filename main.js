@@ -225,16 +225,19 @@ function interest(data,classname,color){
         .enter().append('circle')
         .attr('class',classname)
         .attr('cx',(d)=>{return x(d.year)})
-        .attr('cy',(d,i)=>{return y(d.number)})
-        .attr('r','2')
+        .attr('cy',(d)=>{return y(d.number)})
         .attr('fill',color)
-        .attr('opacity',0.5)
         .attr('stroke',color)
-        .attr('stroke-width',1.5)
-        .attr('stroke-linejoin','round')
-        .attr('stroke-linecap','round')
-        .on('mouseover',function(d){
+        .attr('r',2)
+        .attr('opacity',0.5)
+        .on('mouseover',function(e,d){
             console.log(this);
+            ggg.selectAll('circle')
+                .attr('opacity',0.1);
+            ggg.selectAll('.'+classname)
+                .attr('r',4)
+                .attr('fill','yellow')
+                .attr('opacity',1);
             let txti = "<br/>" + String(d.year)+','+String(d.number) + "<p>";
             let tooltip = d3.select("#tooltip");
             //  console.log(String(schools[i].longitude)+'\n');
@@ -245,9 +248,11 @@ function interest(data,classname,color){
                 .style("visibility", "visible");
         })
         .on("mouseout", function (e,d) {
-            d3.select(this)
-                .style("fill", 'cyan')
-                .attr('opacity',0.5)
+            d3.selectAll('circle')
+                .attr('opacity',0.5);
+            d3.selectAll('.'+classname)
+                .attr('r',2)
+                .attr('fill',color);
             let tooltip = d3.select("#tooltip");
             tooltip.style("visibility", "hidden");
         });

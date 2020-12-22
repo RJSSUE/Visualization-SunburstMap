@@ -53,49 +53,84 @@ h1 {
     fill: none;
     stroke: blue;
     stroke-width: 2;
-    opacity: 1;
+    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path2{
     fill: none;
     stroke: cyan;
     stroke-width: 2;
-    opacity: 1;
+    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path3{
     fill: none;
     stroke: red;
     stroke-width: 2;
-    opacity: 1;
+    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path4{
     fill: none;
     stroke: green;
     stroke-width: 2;
-    opacity: 1;
+    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path5{
     fill: none;
     stroke: burlywood;
     stroke-width: 2;
-    opacity: 1;
+    opacity: 0.5;
     stroke-linejoin: round;
+}
+.total{
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap:round;
+}
+.inter{
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap:round;
+}
+.system{
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap:round;
+}
+.AI{
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap:round;
+}
+.mixed{
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap:round;
+}
+.none{
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap:round;
+}
+.theory{
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap:round;
 }
 .line-path6{
     fill: none;
     stroke: violet;
     stroke-width: 2;
-    opacity: 1;
+    opacity: 0.5;
     stroke-linejoin: round;
 }
 .line-path7{
     fill: none;
     stroke: salmon;
     stroke-width: 2;
-    opacity: 1;
+    opacity: 0.5;
     stroke-linejoin: round;
 }
 #container {

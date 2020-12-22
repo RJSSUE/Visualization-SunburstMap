@@ -204,9 +204,9 @@ d3.json(linchar).then(
             .attr('font-size', '0.8rem');
 
         ggg.append('g')
-            .selectAll('circle')
+        //    .selectAll('circle')
             .attr('class','AI')
-            .data(total)
+            .data(AI)
             .enter().append('circle')
             .attr('cx',(d,i)=>{return cx(AI[i].year)})
             .attr('cy',(d,i)=>{return cy(AI[i].number,maxy)})
@@ -235,9 +235,9 @@ d3.json(linchar).then(
                 tooltip.style("visibility", "hidden");
             });
         ggg.append('g')
-            .selectAll('circle')
+        //    .selectAll('circle')
             .attr('class','system')
-            .data(total)
+            .data(system)
             .enter().append('circle')
             .attr('cx',(d,i)=>{return cx(system[i].year)})
             .attr('cy',(d,i)=>{return cy(system[i].number,maxy)})
@@ -266,9 +266,9 @@ d3.json(linchar).then(
                 tooltip.style("visibility", "hidden");
             });
         ggg.append('g')
-            .selectAll('circle')
+        //    .selectAll('circle')
             .attr('class','theory')
-            .data(total)
+            .data(theory)
             .enter().append('circle')
             .attr('cx',(d,i)=>{return cx(theory[i].year)})
             .attr('cy',(d,i)=>{return cy(theory[i].number,maxy)})
@@ -297,9 +297,9 @@ d3.json(linchar).then(
                 tooltip.style("visibility", "hidden");
             });
         ggg.append('g')
-            .selectAll('circle')
+        //    .selectAll('circle')
             .attr('class','inter')
-            .data(total)
+            .data(inter)
             .enter().append('circle')
             .attr('cx',(d,i)=>{return cx(inter[i].year)})
             .attr('cy',(d,i)=>{return cy(inter[i].number,maxy)})
@@ -328,9 +328,9 @@ d3.json(linchar).then(
                 tooltip.style("visibility", "hidden");
             });
         ggg.append('g')
-            .selectAll('circle')
+        //    .selectAll('circle')
             .attr('class','mixed')
-            .data(total)
+            .data(mixed)
             .enter().append('circle')
             .attr('cx',(d,i)=>{return cx(mixed[i].year)})
             .attr('cy',(d,i)=>{return cy(mixed[i].number,maxy)})
@@ -359,9 +359,9 @@ d3.json(linchar).then(
                 tooltip.style("visibility", "hidden");
             });
         ggg.append('g')
-            .selectAll('circle')
+        //    .selectAll('circle')
             .attr('class','none')
-            .data(total)
+            .data(none)
             .enter().append('circle')
             .attr('cx',(d,i)=>{return cx(none[i].year)})
             .attr('cy',(d,i)=>{return cy(none[i].number,maxy)})
@@ -390,7 +390,7 @@ d3.json(linchar).then(
                 tooltip.style("visibility", "hidden");
             })
         ggg.append('g')
-            .selectAll('circle')
+       //     .selectAll('circle')
             .attr('class','total')
             .data(total)
             .enter().append('circle')
@@ -404,6 +404,9 @@ d3.json(linchar).then(
             .attr('stroke-linejoin','round')
             .attr('stroke-linecap','round')
             .on('mouseover',function(d,i){
+                d3.select(this)
+                    .attr('r',4)
+                    .attr('fill','black');
                 let txti = "<br/>" + String(total[i].year)+','+String(total[i].number) + "<p>";
                 let tooltip = d3.select("#tooltip");
                 //  console.log(String(schools[i].longitude)+'\n');
@@ -474,13 +477,14 @@ const render = function(data) {
     const fill = d => {
         while (d.depth > 1)
             d = d.parent;
-        console.log(d.data.institution);
+    //    console.log(d.data.institution);
         return color(d.data.institution);
     };
     sun.append('g')
         .selectAll('.datapath')
         // this can be simplified as .data(root.descendants().filter(d => d.depth))
         .data(root.descendants().filter(d => d.depth !== 0))
+        .attr('class','sunburst')
         .join('path')
         .attr('class', 'datapath')
         .attr("fill", fill)
