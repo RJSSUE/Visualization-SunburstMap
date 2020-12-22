@@ -1,10 +1,9 @@
 let svg = d3.select('#container').select('#mainsvg');
 const width = 700;
-var array;
 const height = 407;
 const margin = {top: 70, right: 10, bottom: 10, left: 10};
-const innerWidth = width - margin.left - margin.right;
-const innerHeight = height - margin.top - margin.bottom;
+// const innerWidth = width - margin.left - margin.right;
+// const innerHeight = height - margin.top - margin.bottom;
 const g = svg.append('g').attr('id', 'maingroup')
     .attr('opacity',0.5)
     .attr("stroke-width", 2)
@@ -16,9 +15,8 @@ const ggg = d3.select('#container').select('#linegraph');
 const sunb = d3.select('#container').select('#sunburst')
     .attr('viewbox',[0,0,500,500])
     .append('g')
-    .attr('transform', `translate(${200}, ${200})`);;
+    .attr('transform', `translate(${200}, ${200})`);
 let padding = {'left': 0.2*width, 'bottom': 0.25*height, 'top': 0.13*height, 'right': 0.15*width};
-let root;
 let institutionColors = {
     'Zhejiang University':'#0f4894',
     'University of Wisconsin - Madison':'#9a203e',
@@ -67,6 +65,7 @@ let dat = null;
 const tip = d3.tip()
     .attr('class', 'd3-tip').html(function(d) { return d.properties.name });
 svg.call(tip);
+let circles,linki,frac,root,x,y;
 function map(){
     d3.json('./data/schoollocation.json').then(function(DATA) {
         dat = DATA;
@@ -109,7 +108,7 @@ function map(){
             }
 
         }
-        let linki = gg.selectAll('line')
+        linki = gg.selectAll('line')
             .data(links)
             .enter().append('line')
             .attr('x1',d=>place_dict[d.source][0])
@@ -118,7 +117,7 @@ function map(){
             .attr('y2',d=>place_dict[d.target][1])
             .attr("stroke", "#999")
             .join("line")
-            .attr('opaque',0.3)
+            .attr('opaque',0.1)
             .attr("stroke-width", d =>0.25*Math.sqrt(d.weight))
             .on("mouseover", function (d,i) {
                 d3.select(this).transition()
@@ -138,12 +137,11 @@ function map(){
             .on("mouseout", function (e, d) {
                 d3.select(this).transition()
                     .attr("stroke-width", d => Math.sqrt(d.weight))
-                    .attr("stroke-opacity", 0.6)
+                    .attr("stroke-opacity", 0.6);
                 d3.select('#tooltip').style('visibility', 'hidden');
             });
 
-
-        let circles = gg.selectAll('circle')
+        circles = gg.selectAll('circle')
             .data(schools)
             .enter().append('circle')
             .attr("class","point")
@@ -152,7 +150,14 @@ function map(){
             .attr("r",(d)=>2+6*d.weight/200)
             .attr("opacity",0.6)
             .on("mouseover", function (d,i) {
-                d3.select(this).style("fill", "goldenrod").attr('opacity',1);
+                frac.attr('opacity',(e)=>{
+                    if(d.school === e.data.institution)
+                        return 1;
+                    else
+                        return 0.2;
+                });
+                d3.select(this)
+                    .style("fill", "goldenrod").attr('opacity',1);
                 let content = '<table>'
                     + '<tr><td>Institution</td><td>' + d.school + '</td></tr>'
                     + '<tr><td>Graduated faculty number</td><td>'+ d.weight+ '</td></tr>'
@@ -165,8 +170,21 @@ function map(){
                     .style('left', String(place_dict[d.school][0]+50) + 'px')
                     .style('top', String(place_dict[d.school][1]+80) + 'px')
                     .style('visibility', 'visible');
+
+                linki.attr("stroke",(l)=>{
+                    if(d.school == l.source && d.school == l.target)
+                        return 'none';
+                    else if(d.school == l.source)
+                        return '#ff7f50';
+                    else if(d.school == l.target)
+                        return '#008000';
+                    else
+                        return 'none';
+                })
             })
             .on("mouseout", function (e,d) {
+                frac.attr('opacity',0.6);
+                linki.attr("stroke","#999");
                 d3.select(this)
                     .style('fill',(d)=>institutionColors[d.school])
                     .attr('opacity',0.5)
@@ -217,7 +235,6 @@ function map(){
         }
     );
 }
-let x, y;
 function interest(data,classname,color){
     ggg.append('g')
         .selectAll('circle')
@@ -351,7 +368,6 @@ function line(){
                 .scale(y)
                 .ticks(10)
                 .tickFormat(d => d);
-            //array = checkNum()
             ggg.append('g')
                 .attr('transform', `translate(${0}, ${155})`)
                 .call(axis_x)
@@ -363,7 +379,7 @@ function line(){
             interest(AI,'AI','cyan');
             interest(system,'system','red');
             interest(theory,'theory','green');
-            interest(inter,'inter','burlywood');
+            interest(inter,'interdisciplinary','burlywood');
             interest(mixed,'mixed','violet');
             interest(none,'none','salmon');
             interest(total,'total','blue');
@@ -444,13 +460,41 @@ function sunburst(){
         }
         // const color = d3.scaleOrdinal(d3.schemeCategory10)
         // console.log(color)
-        sunb.selectAll('.datapath')
+        frac = sunb.selectAll('.datapath')
             // this can be simplified as .data(root.descendants().filter(d => d.depth))
             .data(data.descendants().filter(d => d.depth !== 0))
             .join('path')
-            .attr('class', 'datapath')
+            .attr('class', (d)=>d.data.institution)
+            .attr('opacity',0.6)
             .attr("fill", fill)
-            .attr("d", arc);
+            .attr("d", arc)
+            .on("mouseover", function (d) {
+                circles.attr('opacity',(e)=>{
+                    if(e.school === d.data.institution)
+                        return 1;
+                    else
+                        return 0.2;
+                });
+                d3.select(this)
+                    .attr('opacity',1);
+                linki.attr("stroke",(l)=>{
+                    if(d.data.institution == l.source && d.data.institution == l.target)
+                        return 'none';
+                    else if(d.data.institution == l.source)
+                        return '#ff7f50';
+                    else if(d.data.institution == l.target)
+                        return '#008000';
+                    else
+                        return 'none';
+                })
+            })
+            .on("mouseout", function (e,d) {
+                circles.attr('opacity',0.6);
+                linki.attr("stroke","#999");
+                d3.select(this)
+                    .style('fill',fill)
+                    .attr('opacity',0.5)
+            })
         sunb.selectAll('.datatext')
             .data(data.descendants()
                 //.filter(d => d.depth && (d.x1 - d.x0) > Math.PI / 65 && d.data.name.length < 15))
@@ -489,7 +533,6 @@ function main(){
             this.checked = !this.checked;
             console.log(this.class);
             console.log('clicked\n');
-            //array=checkNum();
             ggg.selectAll('circle')
                 .style("visibility","hidden");
         });
