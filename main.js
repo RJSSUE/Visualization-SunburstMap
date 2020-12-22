@@ -87,6 +87,7 @@ function main(){
         dat = DATA;
         let schools = dat.schools;
         let linkis = dat.links;
+        let nodis = dat.nodes;
         let links = [];
         for (i in schools){
             let s = schools[i].longitude;
@@ -96,18 +97,34 @@ function main(){
             //projection.fitSize([innerWidth,innerHeight],pos_dict[schools[i].school])
             // console.log(pos_dict[schools[i].school]+'\n');
         }
+        for (i in nodis){
+            for(let j in schools)
+                if(nodis[i].id == schools[j].school){
+                    schools[j].weight = nodis[i].weight;
+                    schools[j].in = 0;
+                    schools[j].out = 0;
+                    schools[j].loop = 0;
+                }
+        }
         for(i in linkis){
             let flag = 0;
             for(j in schools){
                 if(linkis[i].target == schools[j].school || linkis[i].source == schools[j].school){
                     flag += 1;
                 }
+                if(linkis[i].target == schools[j].school && linkis[i].source==schools[j].school)
+                    schools[j].loop += linkis[i].weight;
+                else if(linkis[i].target == schools[j].school)
+                    schools[j].in += linkis[i].weight;
+                else if(linkis[i].source == schools[j].school)
+                    schools[j].out += linkis[i].weight;
             }
             if(flag == 2){
                 links.push(linkis[i]);
             }
 
         }
+        console.log(links);
         let linki = gg.selectAll('line')
             .data(links)
             .enter().append('line')
@@ -118,7 +135,29 @@ function main(){
             .attr("stroke", "#999")
             .join("line")
             .attr('opaque',0.3)
-            .attr("stroke-width", d =>0.25*Math.sqrt(d.weight));
+            .attr("stroke-width", d =>0.25*Math.sqrt(d.weight))
+            .on("mouseover", function (d,i) {
+                d3.select(this).transition()
+                    .attr("stroke-width", 10)
+                    .attr("stroke-opacity", 0.3)
+                console.log(d.source+'\n')
+                let content = '<table>'
+                    + '<tr><td>Graduate from</td><td>' + String(links[i].source)+ '</td></tr>'
+                    + '<tr><td>Work at</td><td>'+ String(links[i].target) + '</td></tr>'
+                    + '<tr><td>Number</td><td>'+ String(links[i].weight)+ '</td></tr>'
+                    + '</table>';
+                //console.log(place_dict);
+                d3.select('#tooltip').html(content)
+                    .style('left', String((place_dict[links[i].target][0]+place_dict[links[i].source][0])/2)+'px')
+                    .style('top', String((place_dict[links[i].target][1]+place_dict[links[i].source][1])/2)+'px')
+                    .style('visibility', 'visible');
+            })
+            .on("mouseout", function (e, d) {
+                d3.select(this).transition()
+                    .attr("stroke-width", d => Math.sqrt(d.weight))
+                    .attr("stroke-opacity", 0.6)
+                d3.select('#tooltip').style('visibility', 'hidden');
+            });
 
 
         let circles = gg.selectAll('circle')
@@ -131,15 +170,18 @@ function main(){
             .attr("opacity",0.5)
             .on("mouseover", function (d,i) {
                 d3.select(this).style("fill", "goldenrod").attr('opacity',1);
-                let txt;
-                txt = "<br/>" + String(schools[i].school) + "<p>";
-                let tooltip = d3.select("#tooltip");
-              //  console.log(String(schools[i].longitude)+'\n');
-                tooltip.html(txt)
-                    //设置tooltip的位置
-                    .style("left", (place_dict[schools[i].school][0] + 10) + "px")
-                    .style("top", (place_dict[schools[i].school][1] + 10) + "px")
-                    .style("visibility", "visible");
+                let content = '<table>'
+                    + '<tr><td>Institution</td><td>' + schools[i].school + '</td></tr>'
+                    + '<tr><td>Graduated faculty number</td><td>'+ schools[i].weight+ '</td></tr>'
+                    + '<tr><td>Flow out</td><td>'+ schools[i].out + '</td></tr>'
+                    + '<tr><td>Self_loop</td><td>'+ schools[i].loop+ '</td></tr>'
+                    + '<tr><td>Flow in</td><td>'+ schools[i].in+ '</td></tr>'
+                    + '</table>';
+
+                d3.select('#tooltip').html(content)
+                    .style('left', String(place_dict[schools[i].school][0]+5) + 'px')
+                    .style('top', String(place_dict[schools[i].school][1]+5) + 'px')
+                    .style('visibility', 'visible');
             })
             .on("mouseout", function (e,d) {
                 d3.select(this)
@@ -151,7 +193,6 @@ function main(){
             .style('fill','red');
 
     });
-
 
 
     let worldmeta;
