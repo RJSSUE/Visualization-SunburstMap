@@ -128,12 +128,13 @@ function map(){
             .attr('y2',d=>place_dict[d.target][1])
             .attr("stroke", "#999")
             .join("line")
-            .attr('opaque',0.1)
+            .attr('stroke-opacity',0.6)
             .attr("stroke-width", d =>0.25*Math.sqrt(d.weight))
             .on("mouseover", function (d,i) {
-                d3.select(this).transition()
-                    .attr("stroke-width", 10)
-                    .attr("stroke-opacity", 0.3)
+                d3.select(this)//.transition()
+                    .attr("stroke-width", 3)
+                    .attr("stroke-opacity", 1)
+                    .attr('stroke','yellow');
                 let content = '<br/>'
                     + "Graduate from: "+ String(links[i].source)+ '<br/>'
                     +"Work at: "+ String(links[i].target) + '<br/>'
@@ -145,9 +146,10 @@ function map(){
                     .style('visibility', 'visible');
             })
             .on("mouseout", function (e, d) {
-                d3.select(this).transition()
+                d3.select(this)//.transition()
                     .attr("stroke-width", d => Math.sqrt(d.weight))
-                    .attr("stroke-opacity", 0.6);
+                    .attr("stroke-opacity", 0.6)
+                    .attr('stroke','#999');
                 d3.select('#tooltip').style('visibility', 'hidden');
             });
 
@@ -543,7 +545,7 @@ function sunburst(){
                         .style('visibility', 'visible');
                 }
                 else if(d.depth === 1){
-                    let con = "<br/>"+"Institution: "+String(d.data.institution)+'<p>'
+                    let con = "<br/>"+"Institution: "+String(d.data.institution)+'<br/>'+String(d.value.toFixed(2))+'<p>';
                     d3.select('#tooltip').html(con)
                         .style('left', '400px')
                         .style('top', '10px')
